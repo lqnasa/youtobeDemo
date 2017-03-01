@@ -99,7 +99,7 @@ public class Search {
             // {{ https://cloud.google.com/console }}
             String apiKey = properties.getProperty("youtube.apikey");
             search.setKey(apiKey);
-            search.setQ(queryTerm);
+            //search.setQ(queryTerm);
             
             //search.setRegionCode("ar");
             //设置阿语
@@ -113,6 +113,7 @@ public class Search {
             String format = sdf.format(new Date());
             Date parse = sdf.parse(format);
             DateTime dateTime=new DateTime(parse);
+            System.out.println(dateTime.toStringRfc3339());
             search.setPublishedAfter(dateTime);
             
             // To increase efficiency, only retrieve the fields that the
