@@ -60,7 +60,7 @@ public class Search {
             //API密钥。（需要*）您的API密钥用于识别您的项目，并为您提供API访问权限，配额和报告。
             String apiKey = properties.getProperty("youtube.apikey");
             search.setKey(apiKey);
-            
+
             //String queryTerm="足球";
             //search.setQ(queryTerm);
         	
