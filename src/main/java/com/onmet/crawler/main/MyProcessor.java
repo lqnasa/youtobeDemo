@@ -57,8 +57,6 @@ public class MyProcessor implements PageProcessor{
 			if(str.contains("errorcode"))
 				return;
 			
-				
-			
 			String apiKey = (String) page.getRequest().getExtra("apiKey");
 			String videoId = (String) page.getRequest().getExtra("videoId");
 			//https://www.googleapis.com/youtube/v3/videos?id=scWpXEYZEGk&part=id,contentDetails,snippet,statistics&key=AIzaSyAPjmHyYPp9iy4mNhWwhHtIYX-ZfcdG2fE
@@ -81,7 +79,6 @@ public class MyProcessor implements PageProcessor{
 			//封装个pageArticle对象
 			String videoId = (String) page.getRequest().getExtra("videoId");
 			String rawText = page.getRawText();
-			
 			
 			String title = new JsonPathSelector("$.items[0].snippet.title").select(rawText);
 			String publishedAt = new JsonPathSelector("$.items[0].snippet.publishedAt").select(rawText);
@@ -120,9 +117,6 @@ public class MyProcessor implements PageProcessor{
 			page.putField("pageArticle", pageArticle);
 			
 		}
-		
-		
-			
 		
 	}
 	
