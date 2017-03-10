@@ -179,6 +179,7 @@ public class MyProcessor implements PageProcessor{
 		//该接口可以不用 上面请求获取的信息包含所有内容
 		//3.获取视频的详细信息封装到pageArticle对象中
 		//https://developers.google.com/youtube/v3/docs/videos
+		//https://developers.google.com/youtube/v3/docs/videos#resource
 		/*if(url.contains("https://www.googleapis.com/youtube/v3/videos")){
 			//封装个pageArticle对象
 			String videoId = (String) page.getRequest().getExtra("videoId");
