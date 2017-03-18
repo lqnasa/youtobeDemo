@@ -21,7 +21,7 @@ public class ProjectConfigUtil {
       
     private ProjectConfigUtil() {} 
     
-    private static String configFile="youtube.properties";
+    private static String configFile="config.properties";
       
     /** 
      * 获取内容 
