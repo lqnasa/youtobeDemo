@@ -1,7 +1,9 @@
 package com.onmet.crawler.main;
 
+import java.beans.Encoder;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -170,7 +172,6 @@ public class MyProcessor implements PageProcessor{
 			pageArticle.setImages(pageImages);
 			
 			page.putField("pageArticle", pageArticle);
-			
 			
 		}
 		
