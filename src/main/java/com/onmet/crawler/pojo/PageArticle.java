@@ -46,6 +46,13 @@ public class PageArticle {
 	@Expose
 	public List<String> tags;//标签
 	
+	//v1.4 采集视频
+	public Integer readCount; //源网站阅读量
+	public Integer commentCount; //源网站评论量
+	public Integer likeCount; //源网站点赞量
+	public String videoId; //视频id
+	public Integer videoTime; //视频时间，单位秒
+	
 	public PageArticle() {}
 	
 	public PageArticle(String type,String date,String title,String html,String text,List<PageImage> images,String pageUrl) {
@@ -153,6 +160,46 @@ public class PageArticle {
 	}
 	public void setVideos(List<PageVideo> videos) {
 		this.videos = videos;
+	}
+
+	public Integer getReadCount() {
+		return readCount;
+	}
+
+	public void setReadCount(Integer readCount) {
+		this.readCount = readCount;
+	}
+
+	public Integer getCommentCount() {
+		return commentCount;
+	}
+
+	public void setCommentCount(Integer commentCount) {
+		this.commentCount = commentCount;
+	}
+
+	public Integer getLikeCount() {
+		return likeCount;
+	}
+
+	public void setLikeCount(Integer likeCount) {
+		this.likeCount = likeCount;
+	}
+
+	public String getVideoId() {
+		return videoId;
+	}
+
+	public void setVideoId(String videoId) {
+		this.videoId = videoId;
+	}
+
+	public Integer getVideoTime() {
+		return videoTime;
+	}
+
+	public void setVideoTime(Integer videoTime) {
+		this.videoTime = videoTime;
 	}
 	
 	
