@@ -35,7 +35,7 @@ public class JsoupProcessor {
 		String text_attr="";
 		String text_ignore="script,end,.tu span";
 
-		String image="#endText img,.tu img ~ span";
+		String image="#endText img";
 		String image_attr="";
 		String image_ignore="";
 
@@ -43,8 +43,8 @@ public class JsoupProcessor {
 		String image_url_attr="src";
 		String image_url_ignore="";
 
-		String image_title=".tu img ~ span";
-		String image_title_attr="";
+		String image_title="img";
+		String image_title_attr="alt";
 
 
 
@@ -58,105 +58,113 @@ public class JsoupProcessor {
 					.timeout(30000).get();
 		
 			//String lang = doc.select("html").attr("lang");
-			Document cloneDoc = doc.clone();
+			//Document cloneDoc = doc.clone();
 			
-			String titleName="";
-			Elements titleEl = doc.select(title);
-			if(!titleEl.isEmpty()){
-				Element titleEle = titleEl.first();
-				if(StringUtils.isNotBlank(title_attr)){
-					titleName=titleEle.attr(title_attr);
-				}else{
-					titleName=titleEle.text();
+			
+			//实现文章title抽取
+			String titleName=doc.title();
+			if(StringUtils.isNotBlank(title)){
+				Elements titleEls = doc.select(title);
+				if(!titleEls.isEmpty()){
+					Element titleEl = titleEls.first();
+					titleName=StringUtils.isNotBlank(title_attr)?titleEl.attr(title_attr):titleEl.text();
 				}
 			}
 			System.out.println("标题："+titleName);
 			
 			
-			
+			//抽取作者
 			String authorName="";
-			Elements authorEl = doc.select(author);
-			if(!authorEl.isEmpty()){
-				Element authorEle=authorEl.first();
-				if(StringUtils.isNotBlank(author_attr)){
-					authorName=authorEle.attr(author_attr);
-				}else{
-					authorName=authorEle.text();
+			if(StringUtils.isNotBlank(author)){
+				Elements authorEls = doc.select(author);
+				if(!authorEls.isEmpty()){
+					Element authorEl=authorEls.first();
+					authorName=StringUtils.isNotBlank(author_attr)?authorEl.attr(author_attr):authorEl.text();
 				}
 			}
 			System.out.println("作者："+authorName);
 			
 			
-			
+			//抽取发布时间
 			String dateVal="";
-			Elements dateEl = doc.select(date);
-			if(!dateEl.isEmpty()){
-				Element dateEle = dateEl.first();
-				if(StringUtils.isNotBlank(date_attr)){
-					dateVal=dateEle.attr(date_attr);
-				}else{
-					dateVal=dateEle.text();
+			if(StringUtils.isNotBlank(date)){
+				Elements dateEls = doc.select(date);
+				if(!dateEls.isEmpty()){
+					Element dateEl = dateEls.first();
+					dateVal=StringUtils.isNotBlank(date_attr)?dateEl.attr(date_attr):dateEl.text();
 				}
 			}
 			System.out.println("发布时间："+dateVal);
 			
-			
-			Elements elements= doc.select(text);
+			//抽取图片和备注
 			List<PageImage> pageImages=new ArrayList<PageImage>();
-			if(!elements.isEmpty()){
-				elements.select(text_ignore).remove();
-				elements.select("img").wrap("<figure></figure>");
-				System.out.println(elements);
-				Elements imgs = cloneDoc.select(image); 
-				for (Element element : imgs) {
-					PageImage pageImage=new PageImage();
-					pageImage.setPrimary(true);
-					
-					String src="";
-					Elements imgEl = element.select(image_url);
-					if(!imgEl.isEmpty()){
-						Element img = imgEl.first();
-						src = img.attr(image_url_attr);
-						pageImage.setUrl(src);
+			if(StringUtils.isNotBlank(image)){
+				Elements imgs = doc.select(image);
+				if(!imgs.isEmpty()){
+					if(StringUtils.isNotBlank(image_ignore)){
+						imgs.select(image_ignore).remove();
 					}
-					
-					String imgtitle="";
-					if(StringUtils.isNotBlank(image_title)){
-						Elements select = cloneDoc.select(image).select(image_title);
-						if(!select.isEmpty()){
-							Element first = select.first();
-							if(StringUtils.isNotBlank(image_title_attr)){
-								imgtitle = first.attr(image_title_attr);
-							}else{
-								imgtitle=first.text();
+					for (Element img : imgs) {
+						PageImage pageImage=new PageImage();
+						Element imgEl=StringUtils.isNotBlank(image_url)?img.select(image_url).first():img.select("img").first();
+						String url=StringUtils.isNotBlank(image_url)?imgEl.attr(image_url_attr):img.attr("src");
+						pageImage.setPrimary(true);
+						pageImage.setUrl(url);
+						
+						if(StringUtils.isNotBlank(image_title)){
+							Elements imgTitleEls=img.select(image_title);
+							if(!imgTitleEls.isEmpty()){
+								String imgTitle=StringUtils.isNotBlank(image_title_attr)?imgTitleEls.first().attr(image_title_attr):imgTitleEls.first().text();
+								pageImage.setTitle(imgTitle);
 							}
-							pageImage.setTitle(imgtitle);
-							elements.select("img[src="+src+"]").append("<figcaption>"+imgtitle+"</figcaption>");
 						}
+						
+						pageImages.add(pageImage);
 					}
-					
-					
-					pageImages.add(pageImage);
 				}
-				
-				
-				elements.select("div").tagName("p");
-				elements.select("p").removeAttr("id");
-				elements.select("p").removeAttr("class");
-				elements.select("p").removeAttr("style");
-				
-				System.out.println(elements.html());
 			}
 			
+			
+			
+			//抽取文本
+			String htmlText="";
+			String html="";
+			if(StringUtils.isNoneBlank(text)){
+				Elements htmlEls= doc.select(text);
+				if(!htmlEls.isEmpty()){
+					//过滤不需要的元素
+					if(StringUtils.isNotBlank(text_ignore))
+						htmlEls.select(text_ignore).remove();
+					htmlEls.select("img").wrap("<figure></figure>");
+					for (PageImage pageImage : pageImages) {
+						if(StringUtils.isNotBlank(pageImage.getTitle())){
+							htmlEls.select("img[src="+pageImage.getUrl()+"]").append("<figcaption>"+pageImage.getTitle()+"</figcaption>");
+						}
+					}
+				}
+				
+				htmlEls.select("div").tagName("p");
+				htmlEls.select("p").removeAttr("id");
+				htmlEls.select("p").removeAttr("class");
+				htmlEls.select("p").removeAttr("style");
+				
+				html=htmlEls.html();
+				htmlText=htmlEls.text();
+			}
+
+		   System.out.println(html);
+			
+			
 			PageArticle pageArticle=new PageArticle();
-			pageArticle.setAuthor(author);
-			pageArticle.setDate(date);
+			pageArticle.setAuthor(authorName);
+			pageArticle.setDate(dateVal);
+			pageArticle.setTitle(titleName);
 			//pageArticle.setHumanLanguage(lang);
 			pageArticle.setType("article");
 			pageArticle.setPageUrl(pageUrl);
 			
-			pageArticle.setText(elements.text());
-			pageArticle.setHtml(elements.html());
+			pageArticle.setText(htmlText);
+			pageArticle.setHtml(html);
 			pageArticle.setTags(null);
 			pageArticle.setImages(pageImages);
 			pageArticle.setVideos(null);
