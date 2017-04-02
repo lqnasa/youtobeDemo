@@ -1,4 +1,4 @@
-package com.onmet.crawler.main;
+package com.onmet.crawler.jsoup;
 
 import java.io.IOException;
 import java.util.ArrayList;
