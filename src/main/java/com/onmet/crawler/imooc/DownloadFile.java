@@ -1,4 +1,4 @@
-package com.onmet.crawler.main;
+package com.onmet.crawler.imooc;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;

@@ -1,4 +1,4 @@
-package com.onmet.crawler.main;
+package com.onmet.crawler.imooc;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -34,10 +34,10 @@ public class ImoocVideoDown {
 				el.select("button").remove();
 				String title = el.text().replaceAll("\\(.*?\\)", "").trim();
 				
-				 Document videoDoc = Jsoup.connect("http://www.imooc.com/course/ajaxmediainfo/?mid="+videoId+"&mode=flash").get();
-				 System.out.println(videoDoc.text());
-				 String videoUrl = JsonPath.read(videoDoc.text(),"$.data.result.mpath[2]");
-				 System.out.println(videoUrl);
+				Document videoDoc = Jsoup.connect("http://www.imooc.com/course/ajaxmediainfo/?mid="+ videoId + "&mode=flash").get();
+				System.out.println(videoDoc.text());
+				String videoUrl = JsonPath.read(videoDoc.text(),"$.data.result.mpath[2]");
+				System.out.println(videoUrl);
 				URL url = new URL(videoUrl);
 				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 				conn.setConnectTimeout(3000);

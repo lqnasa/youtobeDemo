@@ -1,4 +1,4 @@
-package com.onmet.crawler.main;
+package com.onmet.crawler.imooc;
 
 public class GetInput {
     public static int getInputClassNo() {
