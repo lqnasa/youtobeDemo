@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd 
+     http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd" default-lazy-init="false" default-autowire="byName">
+
+	<description>服务配置</description>
+	<context:component-scan base-package="com.onemt.news.crawler">
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+	<!--
+		事务声明
+		应用范围：下任意深度的包名中以service层结尾类
+	-->
+	<!-- <aop:config proxy-target-class="true">
+		<aop:advisor advice-ref="txAdvice"
+			pointcut="execution(* com.onemt.news.crawler.service.*.*(..))" />
+	</aop:config> -->
+
+	<!-- 通用事务通知 -->
+	<!-- <tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="do*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="add*" propagation="REQUIRED" rollback-for="Exception" />  
+            <tx:method name="save*" propagation="REQUIRED" rollback-for="Exception" />  
+            <tx:method name="update*" propagation="REQUIRED" rollback-for="Exception" />  
+            <tx:method name="delete*" propagation="REQUIRED" rollback-for="Exception" />
+            <tx:method name="get*" propagation="SUPPORTS" read-only="true" />
+            <tx:method name="*" read-only="true" />  
+		</tx:attributes>
+	</tx:advice> -->
+</beans>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd 
+     http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd"
+	default-lazy-init="false" default-autowire="byName">
+
+	<description>主配置</description>
+	<!-- <task:annotation-driven scheduler="myScheduler" /> <task:scheduler 
+		id="myScheduler" pool-size="5"/> -->
+		
+	<!-- <context:property-placeholder  location="classpath:config/project.properties" ignore-unresolvable="true"/> -->
+
+	<!-- 使用 spring + quartz 申明式配置 -->
+	<!-- 配置Job的bean -->
+	<!-- <bean id="mailJob" class="com.onemt.news.crawler.job.NewsCrawlerMailJob" 
+		/> -->
+
+	<!-- 配置jobDetail -->
+	<bean id="dingdingJobDetail"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<!-- 用到的Job实例 -->
+		<property name="targetObject">
+			<ref bean="chatbotSendJob" />
+		</property>
+		<!-- Job实例中的方法 -->
+		<property name="targetMethod">
+			<value>init</value>
+		</property>
+		<!-- 设置成非并发执行任务 -->
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<!-- 配置触发器Trigger -->
+	<bean id="dingdingTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail">
+			<ref bean="dingdingJobDetail" />
+		</property>
+		<property name="cronExpression">
+			<!-- 每天9点执行 -->
+			<value>0 38 15 * * ?</value>
+		</property>
+	</bean>
+
+	<!-- 配置scheduler工厂 -->
+	<bean id="scheduler"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="dingdingTrigger" />
+			</list>
+		</property>
+	</bean>
+
+	<!--邮件发送实现类 -->
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<!-- SMTP settings -->
+		<property name="host" value="${email.host}" />
+		<property name="port" value="${email.port}" />
+		<property name="username" value="${email.username}" />
+		<property name="password" value="${email.password}" />
+
+		<property name="javaMailProperties">
+			<!-- additional properties specific to JavaMail -->
+			<props>
+				<prop key="mail.transport.protocol">smtp</prop>
+				<prop key="mail.smtp.auth">true</prop>
+				<prop key="mail.smtp.starttls.enable">true</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean
+		class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<prop key="java.lang.Exception">Error</prop>
+			</props>
+		</property>
+	</bean>
+
+
+	<!-- <bean id="chatbotSendJob" class="com.onemt.news.crawler.job.ChatbotSendJob" init-method="init"  lazy-init="false" /> -->
+	<!-- <bean id="newsCrawlerMailJob" class="com.onemt.news.crawler.job.NewsCrawlerMailJob" init-method="init"  lazy-init="false" /> -->
+
+</beans>

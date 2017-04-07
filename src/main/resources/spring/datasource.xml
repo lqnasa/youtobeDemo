@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:cache="http://www.springframework.org/schema/cache" xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+	http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache-3.2.xsd
+	http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd"
+	default-lazy-init="false">
+
+	<description>数据源相关定义</description>
+	
+	<!-- <context:property-placeholder location="classpath:config/mysql.properties" /> -->
+	<context:property-placeholder location="classpath:config/mysql.properties" ignore-unresolvable="true" />
+	
+	<!-- 数据库连接 52.58.74.181 onemt_news_crawler -->
+	<bean id="crawlerDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="driverClass" value="${jdbc.driverClassName}" />
+		<property name="jdbcUrl"
+			value="jdbc:mysql://${jdbc.url}?characterEncoding=utf-8&amp;autoReconnect=true&amp;failOverReadOnly=false&amp;zeroDateTimeBehavior=convertToNull" />
+		<property name="user" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="minPoolSize" value="${jdbc.minPoolSize}" /><!-- 最小连接数 -->
+		<property name="maxPoolSize" value="${jdbc.maxPoolSize}" /><!-- 最大连接数 -->
+		<property name="initialPoolSize" value="${jdbc.initialPoolSize}" /><!-- 连接池初始化时获取的连接数，介于minPoolSize和maxPoolSize之间 -->
+		<property name="maxIdleTime" value="${jdbc.maxIdleTime}" /><!-- 最大空闲的时间，单位是秒，无用的连接空闲超时后会被回收，直到达到最小连接数 -->
+		<property name="acquireIncrement" value="${jdbc.acquireIncrement}" /><!-- 当前连接耗尽并且在尚未达到最大连接数限制的前提下，一次获取的新连接数量 -->
+		<property name="idleConnectionTestPeriod" value="${jdbc.idleConnectionTestPeriod}" /><!-- 进行连接空闲超时检查的时间间隔 -->
+		<property name="acquireRetryAttempts" value="${jdbc.acquireRetryAttempts}" /><!-- 定义在从数据库获取新连接失败后重试的次数，缺省值30次 -->
+		<property name="breakAfterAcquireFailure" value="${jdbc.breakAfterAcquireFailure}" /><!-- 获取连接失败将会引起所有等待连接池来获取连接的线程抛出异常。但 
+			是数据源仍保持有效，并在下次调用getConnection()的时候继续重新尝试获取连接。如果设为true，那么在尝试获取连接失败后该数据源 将申明已断开并永久关闭。Default:false -->
+	</bean>
+	
+	<!-- 数据库连接  52.58.74.181 onemt_news -->
+	<bean id="newsDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="driverClass" value="${jdbc.biz.driverClassName}" />
+		<property name="jdbcUrl"
+			value="jdbc:mysql://${jdbc.biz.url}?characterEncoding=utf-8&amp;autoReconnect=true&amp;failOverReadOnly=false&amp;zeroDateTimeBehavior=convertToNull" />
+		<property name="user" value="${jdbc.biz.username}" />
+		<property name="password" value="${jdbc.biz.password}" />
+		<property name="minPoolSize" value="${jdbc.biz.minPoolSize}" /><!-- 最小连接数 -->
+		<property name="maxPoolSize" value="${jdbc.biz.maxPoolSize}" /><!-- 最大连接数 -->
+		<property name="initialPoolSize" value="${jdbc.biz.initialPoolSize}" /><!-- 连接池初始化时获取的连接数，介于minPoolSize和maxPoolSize之间 -->
+		<property name="maxIdleTime" value="${jdbc.biz.maxIdleTime}" /><!-- 最大空闲的时间，单位是秒，无用的连接空闲超时后会被回收，直到达到最小连接数 -->
+		<property name="acquireIncrement" value="${jdbc.biz.acquireIncrement}" /><!-- 当前连接耗尽并且在尚未达到最大连接数限制的前提下，一次获取的新连接数量 -->
+		<property name="idleConnectionTestPeriod" value="${jdbc.biz.idleConnectionTestPeriod}" /><!-- 进行连接空闲超时检查的时间间隔 -->
+		<property name="acquireRetryAttempts" value="${jdbc.biz.acquireRetryAttempts}" /><!-- 定义在从数据库获取新连接失败后重试的次数，缺省值30次 -->
+		<property name="breakAfterAcquireFailure" value="${jdbc.biz.breakAfterAcquireFailure}" /><!-- 获取连接失败将会引起所有等待连接池来获取连接的线程抛出异常。但 
+			是数据源仍保持有效，并在下次调用getConnection()的时候继续重新尝试获取连接。如果设为true，那么在尝试获取连接失败后该数据源 将申明已断开并永久关闭。Default:false -->
+	</bean>
+	
+	<!-- 多数据源切换  -->
+	<bean id="multiDataSource" class="com.onemt.news.crawler.multidatasource.MultiDataSource">
+		<property name="targetDataSources">
+			<map key-type="java.lang.String">
+				<!-- 指定lookupKey和与之对应的数据源 -->
+				<entry key="crawlerDataSource" value-ref="crawlerDataSource"></entry>
+				<entry key="newsDataSource" value-ref="newsDataSource"></entry>
+			</map>
+		</property>
+		<!-- 这里可以指定默认的数据源 -->
+		<property name="defaultTargetDataSource" ref="crawlerDataSource"/> 
+		
+	</bean>
+
+	<!-- 数据库会话 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="configLocation" value="classpath:sqlmaps/mybatis.xml" />
+		<property name="dataSource" ref="multiDataSource" />
+	</bean>
+	
+	<!-- 启用事务注解 -->
+	<!-- 将所有具有@Transactional注解的Bean自动配置为声明式事务支持 --> 
+	<tx:annotation-driven transaction-manager="transactionManager"  proxy-target-class="true"/>
+	
+	<!--事务配置 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="multiDataSource" />
+	</bean>
+	
+	<!-- 扫描数据访问层，组装数据访问接口实现类 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.onemt.news.crawler.mysql" />
+		<!-- <property name="markerInterface" value="com.onemt.news.crawler.mysql.mapper.BaseMapper" /> -->
+		<!-- <property name="sqlSessionFactory" ref="sqlSessionFactory" /> -->
+		<!-- 
+		 使用context:property-placeholder载不进属性原因分析与解决方案
+		改用sqlSessionFactoryBeanName注入就没有问题(不要使用sqlSessionFactory属性注入，使用sqlSessionFactoryBeanName注入)，
+		因为这时不会立即初始化sqlSessionFactory,传入的只是名字，非bean，所以不会引发提前初始化问题。。 -->
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+	</bean>
+</beans>
