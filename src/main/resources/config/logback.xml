@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration scan="true" scanPeriod="50 seconds" debug="true">
+	<property name="LOG_PATH" value="d:/data/resin_logs/news-crawler-data-mail" />
+	<appender name="stdoutAppender" class="ch.qos.logback.core.ConsoleAppender">
+		<Target>System.out</Target>
+		<encoder>
+			<pattern>%d [%t] %-5p [%c] - %m%n</pattern>
+		</encoder>
+	</appender>
+	<appender name="defaultAppender"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<Encoding>UTF-8</Encoding>
+		<File>${LOG_PATH}/default/default</File>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>${LOG_PATH}/default/default.%d{yyyy-MM-dd}.zip
+			</FileNamePattern>
+			<MaxHistory>60</MaxHistory>
+		</rollingPolicy>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50}:%line -%msg%n</pattern>
+		</layout>
+	</appender>
+	<appender name="sqlAppender"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<Encoding>UTF-8</Encoding>
+		<File>${LOG_PATH}/sql/sql</File>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>${LOG_PATH}/sql/sql.%d{yyyy-MM-dd}.zip
+			</FileNamePattern>
+			<MaxHistory>60</MaxHistory>
+		</rollingPolicy>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logge%logger{50}:%line- %msg%n</pattern>
+		</layout>
+	</appender>
+
+	<appender name="integrationAppender"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<Encoding>UTF-8</Encoding>
+		<File>${LOG_PATH}/integration/integration</File>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>${LOG_PATH}/integration/integration.%d{yyyy-MM-dd}.zip
+			</FileNamePattern>
+			<MaxHistory>60</MaxHistory>
+		</rollingPolicy>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50}:%line -
+				%msg%n</pattern>
+		</layout>
+	</appender>
+
+	<appender name="exLogAppender"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>ERROR</level>
+		</filter>
+		<Encoding>UTF-8</Encoding>
+		<File>${LOG_PATH}/exlog/exlog</File>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>${LOG_PATH}/exlog/exlog.%d{yyyy-MM-dd}.zip
+			</FileNamePattern>
+			<MaxHistory>60</MaxHistory>
+		</rollingPolicy>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n
+			</pattern>
+		</layout>
+	</appender>
+	
+	<appender name="diffbotExtraAppender"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<Encoding>UTF-8</Encoding>
+		<File>${LOG_PATH}/diffbotextra/diffbotextra</File>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>${LOG_PATH}/diffbotextra/diffbotextra.%d{yyyy-MM-dd}.zip
+			</FileNamePattern>
+		</rollingPolicy>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<pattern>%msg%n</pattern>
+		</layout>
+	</appender>
+	
+	<logger name="com.onemt.news.crawler.mysql.biz.mapper" level="DEBUG">
+		<appender-ref ref="sqlAppender" />
+	</logger>
+	<logger name="com.onemt.news.crawler.mysql.mapper" level="DEBUG">
+		<appender-ref ref="sqlAppender" />
+	</logger>
+	<logger name="com.onemt.news.crawler.s3" level="DEBUG">
+		<appender-ref ref="integrationAppender" />
+	</logger>
+	<logger name="com.onemt.news.crawler.business.extract" level="DEBUG">
+		<appender-ref ref="integrationAppender" />
+	</logger>
+	<logger name="org.springframework" level="ERROR" />
+	<logger name="com.mchange.v2" level="ERROR" />
+	<logger name="com.onemt.news.crawler.business.extract"
+		level="INFO">
+		<appender-ref ref="diffbotExtraAppender" />
+	</logger>
+	<root level="INFO">
+		<appender-ref ref="stdoutAppender" />
+		<appender-ref ref="defaultAppender" />
+		<appender-ref ref="exLogAppender" />
+	</root>
+</configuration>
