@@ -18,7 +18,7 @@ public class GetUserTimeline {
 	      List<Status> statuses;
 	      String user = "SaudiNews50";
 	      Paging page = new Paging();
-	      page.count(20);
+	      page.setPage(10);
 	      statuses = twitter.getUserTimeline(user, page);
 	      System.out.println("Showing@"+ user + "'suser timeline.");
 	      for (Status status : statuses) {
@@ -43,7 +43,7 @@ public class GetUserTimeline {
 	               if (type.equals("photo")) {
 	                  String imgUrl =status.getMediaEntities()[0].getMediaURL();
 	                  System.out.println("imgUrl:"+ imgUrl);
-	               } else if (type.equals("video")) {
+	               } else if (type.equals("+")) {
 	                  String videoUrl =status.getMediaEntities()[0].getMediaURL();
 	                  System.out.println("videoUrl:"+ videoUrl);
 	               } else {

@@ -27,7 +27,7 @@ public class Tw {
 	public static void main(String[] args) throws Exception {
 	  OAuthConsumer consumer = new CommonsHttpOAuthConsumer(ConsumerKey,ConsumerSecret);
       consumer.setTokenWithSecret(AccessToken, AccessSecret);
-      HttpGet request = new HttpGet("http://api.twitter.com/1.1/followers/ids.json?cursor=-1&screen_name=josdirksen");
+      HttpGet request = new HttpGet("https://api.twitter.com/1.1/statuses/user_timeline.json?cursor=-1&screen_name=josdirksen");
       consumer.sign(request);
 
       CloseableHttpClient httpclient = HttpClients.createDefault();
