@@ -179,7 +179,7 @@ public class StatusStreamService {
 			OEmbed oEmbed = twitter.getOEmbed(oEmbedRequest);
 			String html = oEmbed.getHtml();
 			System.out.println(new GsonBuilder().create().toJson(oEmbed));
-			Status showStatus = twitter.showStatus(851850163287097348L);
+			Status showStatus = twitter.showStatus(852198778522279942L);
 			System.out.println(new GsonBuilder().create().toJson(showStatus));
 		} catch (TwitterException e) {
 			// TODO Auto-generated catch block
