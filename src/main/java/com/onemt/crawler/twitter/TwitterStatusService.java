@@ -257,6 +257,7 @@ public class TwitterStatusService {
 
 	
 	//获取youtube视频时长
+	//P#DT#H#M#S
 	public static int getYoutubeDurationTime(String duration) {
 		int time=0;
 		try {

@@ -7,61 +7,88 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.jayway.jsonpath.JsonPath;
-
 public class ImoocVideoDown {
 
-	public static void main(String[] args) {
-		String learnUrl="http://www.imooc.com/learn/813";
-		try {
-			//模拟成手机端访问
-			Document doc = Jsoup.connect(learnUrl).get();
-			String videoTitle = doc.title();
-			File file=new File("F:\\down\\imooc\\"+videoTitle);
-			if(!file.exists())
-				file.mkdirs();
-			
-			
-			Elements elements = doc.select(".course-sections a");
-			for (Element el : elements) {
-				String videoId = el.attr("data-id");
-				el.select("button").remove();
-				String title = el.text().replaceAll("\\(.*?\\)", "").trim();
-				
-				Document videoDoc = Jsoup.connect("http://www.imooc.com/course/ajaxmediainfo/?mid="+ videoId + "&mode=flash").get();
-				System.out.println(videoDoc.text());
-				String videoUrl = JsonPath.read(videoDoc.text(),"$.data.result.mpath[2]");
-				System.out.println(videoUrl);
-				URL url = new URL(videoUrl);
-				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-				conn.setConnectTimeout(3000);
-				conn.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)");
-				    
-				BufferedInputStream bis=new BufferedInputStream(conn.getInputStream());
-				System.out.println(file.getPath()+File.separator+title+".mp4");
-				BufferedOutputStream bos=new BufferedOutputStream(new FileOutputStream(new File(file.getPath()+File.separator+title+".mp4")));
-				byte[] buf=new byte[1024*1024];
-				int len=0;
-				while((len=bis.read(buf))!=-1){
-					bos.write(buf, 0, len);
+	public static void main(String[] args) throws IOException {
+		String cookiesStr = "imooc_uuid=8e611296-bd03-4b90-a94e-1d7e9143bb31; imooc_isnew=1; imooc_isnew_ct=1494051371; loginstate=1; apsid=IxOThmNDVjYzgwZjJjZWVjNTM0MjBjZDQ1YTRkNGIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMTI0NDE5OQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABscTE5ODY0MTRAMTYzLmNvbQAAAAAAAAAAAAAAAAAAAGMzNDc1MjZkNzMwODhkMTRlMDNjOGIwNjc1MGEwNzJlMGoNWTBqDVk%3DZm; last_login_username=lq1986414%40163.com; IMCDNS=0; Hm_lvt_f0cfcccd7b1393990c78efdeebff3968=1494051356; Hm_lpvt_f0cfcccd7b1393990c78efdeebff3968=1494051615; PHPSESSID=gddne35ufpunhv5rco6jqr2nm1; Hm_lvt_c92536284537e1806a07ef3e6873f2b3=1494051676; Hm_lpvt_c92536284537e1806a07ef3e6873f2b3=1494051676; cvde=590d6a2b01b10-18";
+		String[] cookies = cookiesStr.split(";");
+		Map<String, String> map = new HashMap<>();
+		for (String cookie : cookies) {
+			String[] cookieArr = cookie.split("=");
+			System.out.println(cookieArr[0] + " " + cookieArr[1]);
+			map.put(cookieArr[0], cookieArr[1]);
+
+		}
+		String url = "http://www.imooc.com/learn/567";
+		Document doc = Jsoup.connect(url).cookies(map)
+				.userAgent(
+						"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Mobile Safari/537.36")
+				.get();
+
+		System.out.println(doc.html());
+		String title = doc.select("title").text();
+		File file = new File("G:\\imooc\\" + title);
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+
+		Elements videos = doc.select(".course-sections a");
+		for (Element element : videos) {
+			String absUrl = element.absUrl("href");
+			String text = element.select("a").text();
+			/*
+			 * downUrlMap.put(absUrl, text); System.out.println(absUrl+" "
+			 * +text);
+			 */
+
+			Document downdoc = Jsoup.connect(absUrl).cookies(map)
+					.userAgent(
+							"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Mobile Safari/537.36")
+					.get();
+
+			// System.out.println(downdoc.html());
+
+			String html = downdoc.html();
+			Pattern p = Pattern.compile("course.videoUrl=\"(.*?)\";");
+			Matcher matcher = p.matcher(html);
+			while (matcher.find()) {
+				String videoUrl = matcher.group(1);
+				videoUrl = videoUrl.replace("/L", "/H");
+				String str = videoUrl.substring(videoUrl.lastIndexOf("."));
+
+				// 获取下载地址
+				URL url2 = new URL(videoUrl);
+				// 链接网络地址
+				HttpURLConnection connection = (HttpURLConnection) url2.openConnection();
+				connection.setConnectTimeout(50000);
+				connection.setReadTimeout(50000);
+				BufferedInputStream bis = new BufferedInputStream(connection.getInputStream());
+				BufferedOutputStream bos = new BufferedOutputStream(
+						new FileOutputStream(new File("G:\\imooc\\" + title + "\\" + text + str)));
+
+				byte[] b = new byte[1024 * 1024 * 10];
+				int len = 0;
+				while ((len = bis.read(b)) != -1) {
+					bos.write(b, 0, len);
 				}
 				bos.flush();
 				bos.close();
 				bis.close();
-				
+
 			}
 
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
-		
-		
+
 	}
-	
+
 }
